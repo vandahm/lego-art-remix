@@ -982,11 +982,20 @@ function drawStudCountForContext(
     const radius = scalingFactor / 2;
     ctx.font = `${scalingFactor / 2}px Arial`;
 
+    let lineOffsetNumber = 0;
     availableStudHexList.forEach((pixelHex, i) => {
         const number = i + 1;
+
+        if (studMap[pixelHex] !== undefined) {
+            lineOffsetNumber++;
+        }
+
+        if (studMap[pixelHex] == null) {
+            return;
+        }
         ctx.beginPath();
         const x = horizontalOffset;
-        const y = verticalOffset + radius * 2.5 * number;
+        const y = verticalOffset + radius * 2.5 * lineOffsetNumber;
         drawPixel(
             ctx,
             x - radius,
@@ -1148,9 +1157,9 @@ function generateInstructionPage(
 
     const studToNumber = {};
 
-    filteredStudHexList = availableStudHexList.filter((stud) => studMap[stud] !== undefined);
+    availableStudHexList.filter((stud) => studMap[stud] !== undefined);
 
-    filteredStudHexList.forEach((stud, i) => {
+    availableStudHexList.forEach((stud, i) => {
         studToNumber[stud] = i + 1;
     });
 
@@ -1212,7 +1221,7 @@ function generateInstructionPage(
 
     drawStudCountForContext(
         studMap,
-        filteredStudHexList,
+        availableStudHexList,
         scalingFactor,
         ctx,
         (pictureWidth * 0.25) - radius, // hack
