@@ -2340,20 +2340,6 @@
     <script src="js/index.js"></script>
     <script src="js/metrics.js"></script>
 
-    <script>
-      // note that the disableServiceWorker param only disables new service worker registration
-      if ("serviceWorker" in navigator && !window.location.href.match(/disableServiceWorker/gi)) {
-        navigator.serviceWorker
-          .register("service-worker.js")
-          .then(function (registration) {
-            console.log("Service worker registration successful, scope is:", registration.scope);
-          })
-          .catch(function (error) {
-            console.error("Service worker registration failed, error:", error);
-          });
-      }
-    </script>
-
     <footer>
       <small class="footer">
         <p>This project is not affiliated with The Lego Group</p>
