@@ -981,7 +981,9 @@ function drawStudCountForContext(
 ) {
     const radius = scalingFactor / 2;
     ctx.font = `${scalingFactor / 2}px Arial`;
-    availableStudHexList.forEach((pixelHex, i) => {
+
+    let filteredList = availableStudHexList.filter((stud) => studMap[stud] !== undefined);
+    filteredList.forEach((pixelHex, i) => {
         const number = i + 1;
         ctx.beginPath();
         const x = horizontalOffset;
@@ -1013,7 +1015,7 @@ function drawStudCountForContext(
         horizontalOffset - radius * 2,
         verticalOffset + radius * 0.75,
         radius * 11,
-        radius * 2.5 * (availableStudHexList.length + 0.5)
+        radius * 2.5 * (filteredList.length + 0.5)
     );
     ctx.stroke();
 }
