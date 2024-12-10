@@ -982,11 +982,19 @@ function drawStudCountForContext(
     const radius = scalingFactor / 2;
     ctx.font = `${scalingFactor / 2}px Arial`;
 
+    verticalOffsetMultiplier = 0;
     availableStudHexList.forEach((pixelHex, i) => {
         const number = i + 1;
+
+        if (studMap[pixelHex] === undefined) {
+            return;
+        }
+
+        verticalOffsetMultiplier++;
+
         ctx.beginPath();
         const x = horizontalOffset;
-        const y = verticalOffset + radius * 2.5 * number;
+        const y = verticalOffset + radius * 2.5 * verticalOffsetMultiplier;
         drawPixel(
             ctx,
             x - radius,
@@ -1034,6 +1042,8 @@ function generateInstructionTitlePage(
     pictureWidth = plateWidth * scalingFactor;
     pictureHeight = plateWidth * scalingFactor;
 
+    pictureWidth *= 2; // hack
+
     const radius = scalingFactor / 2;
 
     const studMap = getUsedPixelsStudMap(pixelArray);
@@ -1060,11 +1070,11 @@ function generateInstructionTitlePage(
     ctx.fillText(
         `Resolution: ${width} x ${pixelArray.length / (4 * width)}`,
         pictureWidth * 0.75,
-        pictureHeight * 0.34
+        pictureHeight * 0.34 + radius
     );
 
     const legendHorizontalOffset = pictureWidth * 0.75;
-    const legendVerticalOffset = pictureHeight * 0.41;
+    const legendVerticalOffset = pictureHeight * 0.41 + radius;
     const numPlates = pixelArray.length / (4 * plateWidth * plateWidth);
     const legendSquareSide = scalingFactor;
 
@@ -1130,23 +1140,24 @@ function generateInstructionPage(
 
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.rect(pictureWidth * 0.75, pictureHeight * 0.2, pictureWidth, pictureHeight);
+    ctx.rect((pictureWidth * 0.75) + radius, pictureHeight * 0.2, pictureWidth, pictureHeight);
     ctx.stroke();
     ctx.fillStyle = "#000000";
-    ctx.fillRect(pictureWidth * 0.75, pictureHeight * 0.2, pictureWidth, pictureHeight);
+    ctx.fillRect(pictureWidth * 0.75 + radius, pictureHeight * 0.2, pictureWidth, pictureHeight);
 
     ctx.lineWidth = 5;
     ctx.strokeStyle = "#000000";
     ctx.font = `${scalingFactor}px Arial`;
     ctx.beginPath();
-    ctx.fillText(`Section ${plateNumber}`, pictureWidth * 0.75, pictureHeight * 0.2 - scalingFactor);
+    ctx.fillText(`Section ${plateNumber}`, pictureWidth * 0.75, pictureHeight * 0.2 - scalingFactor + 16);
     ctx.stroke();
 
     ctx.lineWidth = 1;
 
     filteredStudHexList = availableStudHexList.filter((stud) => studMap[stud] != undefined);
     const studToNumber = {};
-    filteredStudHexList.forEach((stud, i) => {
+
+    availableStudHexList.forEach((stud, i) => {
         studToNumber[stud] = i + 1;
     });
 
@@ -1161,7 +1172,7 @@ function generateInstructionPage(
                 pixelArray[pixelIndex * 4 + 2]
             );
             ctx.beginPath();
-            const x = pictureWidth * 0.75 + (j * 2 + 1) * radius;
+            const x = (pictureWidth * 0.75 + (j * 2 + 1) * radius) + radius;
             const y = pictureHeight * 0.2 + ((i % plateWidth) * 2 + 1) * radius;
             drawPixel(
                 ctx,
@@ -1208,10 +1219,10 @@ function generateInstructionPage(
 
     drawStudCountForContext(
         studMap,
-        filteredStudHexList,
+        availableStudHexList,
         scalingFactor,
         ctx,
-        pictureWidth * 0.25,
+        (pictureWidth * 0.25) - radius, // hack
         pictureHeight * 0.2 - radius,
         pixelType
     );
