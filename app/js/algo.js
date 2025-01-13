@@ -982,19 +982,20 @@ function drawStudCountForContext(
     const radius = scalingFactor / 2;
     ctx.font = `${scalingFactor / 2}px Arial`;
 
-    verticalOffsetMultiplier = 0;
+    let lineOffsetNumber = 0;
     availableStudHexList.forEach((pixelHex, i) => {
         const number = i + 1;
 
-        if (studMap[pixelHex] === undefined) {
-            return;
+        if (studMap[pixelHex] !== undefined) {
+            lineOffsetNumber++;
         }
 
-        verticalOffsetMultiplier++;
-
+        if (studMap[pixelHex] == null) {
+            return;
+        }
         ctx.beginPath();
         const x = horizontalOffset;
-        const y = verticalOffset + radius * 2.5 * verticalOffsetMultiplier;
+        const y = verticalOffset + radius * 2.5 * lineOffsetNumber;
         drawPixel(
             ctx,
             x - radius,
@@ -1022,7 +1023,8 @@ function drawStudCountForContext(
         horizontalOffset - radius * 2,
         verticalOffset + radius * 0.75,
         radius * 11,
-        radius * 2.5 * (availableStudHexList.length + 0.5)
+        // radius * 2.5 * (availableStudHexList.length + 0.5)
+        radius * 2.5 * (lineOffsetNumber + 0.5)
     );
     ctx.stroke();
 }
@@ -1049,7 +1051,7 @@ function generateInstructionTitlePage(
     const studMap = getUsedPixelsStudMap(pixelArray);
 
     canvas.height = Math.max(pictureHeight * 1.5, pictureHeight * 0.4 + availableStudHexList.length * radius * 2.5);
-    canvas.width = pictureWidth * 2;
+    canvas.width = pictureWidth * 1.3 * 2; // hack
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1137,8 +1139,8 @@ function generateInstructionPage(
 
     const studMap = getUsedPixelsStudMap(pixelArray);
 
-    canvas.height = Math.max(pictureHeight * 1.5, pictureHeight * 0.4 + availableStudHexList.length * radius * 2.5);
-    canvas.width = pictureWidth * 2;
+    canvas.height = 2 * Math.max(pictureHeight * 1.5, pictureHeight * 0.4 + availableStudHexList.length * radius * 2.5);
+    canvas.width = 2 * pictureWidth * 2;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1160,6 +1162,8 @@ function generateInstructionPage(
 
     filteredStudHexList = availableStudHexList.filter((stud) => studMap[stud] != undefined);
     const studToNumber = {};
+
+    availableStudHexList.filter((stud) => studMap[stud] !== undefined);
 
     availableStudHexList.forEach((stud, i) => {
         studToNumber[stud] = i + 1;
