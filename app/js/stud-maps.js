@@ -9,6 +9,30 @@ STUD_MAPS = {
     //         "#6666ff": 1000
     //     }
     // },
+
+    // trans_colors: {
+    //     officialName: "Translucent Colors",
+    //     descriptionHTML: 'Translucent Colors"
+    //     sortedStuds: [
+    //         "#00296B",
+    //         "#217625",
+    //         "#68BCC5",
+    //         "#E96F01",
+    //         "#5525B7",
+    //         "#9C0010",
+    //         "#EBF72D"
+    //     ],
+    //     studMap: {
+    //         "#00296B": 100000,
+    //         "#217625": 100000,
+    //         "#68BCC5": 100000,
+    //         "#E96F01": 100000,
+    //         "#5525B7": 100000,
+    //         "#9C0010": 100000,
+    //         "#EBF72D": 100000
+    //     }
+    // },
+
     art_project: {
         name: "Art Project (21226)",
         officialName: "Art Project - Create Together (21226)",

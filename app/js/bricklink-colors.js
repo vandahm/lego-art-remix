@@ -1,3 +1,51 @@
+let PETERS_BRICKLINK_TRANS_COLORS = [
+    {
+        name: "Trans-Dark Blue",
+        hex: "#00296B",
+        id: 14
+    },
+    {
+        name: "Trans-Green",
+        hex: "#217625",
+        id: 20
+    },
+    {
+        name: "Trans-Light Blue",
+        hex: "#68BCC5",
+        id: 15
+    },
+    {
+        name: "Trans-Orange",
+        hex: "#E96F01",
+        id: 98
+    },
+    {
+        name: "Trans-Purple",
+        hex: "#5525B7",
+        id: 51,
+    },
+    {
+        name: "Trans-Red",
+        hex: "#9C0010",
+        id: 17
+    },
+    {
+        name: "Trans-Yellow",
+        hex: "#EBF72D",
+        id: 19
+    }
+]
+
+let PETERS_BRICKLINK_TRANS_HEX = [
+    "#00296B",
+    "#217625",
+    "#68BCC5",
+    "#E96F01",
+    "#5525B7",
+    "#9C0010",
+    "#EBF72D"
+];
+
 let ALL_BRICKLINK_SOLID_COLORS = [
     {
         name: "White",
@@ -450,6 +498,10 @@ let ALL_BRICKLINK_SOLID_COLORS = [
     },
 ];
 
+ALL_BRICKLINK_SOLID_COLORS = ALL_BRICKLINK_SOLID_COLORS.concat(PETERS_BRICKLINK_TRANS_COLORS);
+
+console.log(ALL_BRICKLINK_SOLID_COLORS);
+
 const HEX_TO_COLOR_NAME = {};
 ALL_BRICKLINK_SOLID_COLORS.forEach((color) => {
     HEX_TO_COLOR_NAME[color.hex] = color.name;
@@ -599,6 +651,7 @@ const ADDITIONAL_COLORS = ["Very Light Gray"];
 let ALL_VALID_BRICKLINK_COLORS = ALL_BRICKLINK_SOLID_COLORS.sort((a, b) => {
     return a.name > b.name ? 1 : -1;
 });
+
 // .filter(
 //     color =>
 //         KNOWN_BRICKLINK_STUD_COLOR_NAMES.includes(color.name) ||
