@@ -369,8 +369,8 @@ document.getElementById("clear-depth-overrides-button").addEventListener("click"
 });
 
 document.getElementById("resolution-limit-increase-button").addEventListener("click", () => {
-    document.getElementById("height-slider").max = 600;
-    document.getElementById("width-slider").max = 600;
+    document.getElementById("height-slider").max = 384;
+    document.getElementById("width-slider").max = 384;
     document.getElementById("resolution-limit-increase-button").hidden = true;
 });
 
