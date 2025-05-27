@@ -1146,21 +1146,21 @@ function generateInstructionPage(
 
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.rect((pictureWidth * 0.75) + radius, pictureHeight * 0.2, pictureWidth, pictureHeight);
+    ctx.rect((pictureWidth * 1) + radius, pictureHeight * 0.3, pictureWidth, pictureHeight); // 1 was 0.75
     ctx.stroke();
     ctx.fillStyle = "#000000";
-    ctx.fillRect(pictureWidth * 0.75 + radius, pictureHeight * 0.2, pictureWidth, pictureHeight);
+    ctx.fillRect(pictureWidth * 1 + radius, pictureHeight * 0.3, pictureWidth, pictureHeight); // 1 was 0.75
 
     ctx.lineWidth = 5;
     ctx.strokeStyle = "#000000";
     ctx.font = `${scalingFactor}px Arial`;
     ctx.beginPath();
-    ctx.fillText(`Section ${plateNumber}`, pictureWidth * 0.75, pictureHeight * 0.2 - scalingFactor + 16);
+    ctx.fillText(`Section ${plateNumber}`, pictureWidth * 1, pictureHeight * 0.3 - scalingFactor + 16); // 1 was 0.75
     ctx.stroke();
 
     ctx.lineWidth = 1;
 
-    filteredStudHexList = availableStudHexList.filter((stud) => studMap[stud] != undefined);
+    let = filteredStudHexList = availableStudHexList.filter((stud) => studMap[stud] != undefined);
     const studToNumber = {};
 
     availableStudHexList.filter((stud) => studMap[stud] !== undefined);
@@ -1180,8 +1180,8 @@ function generateInstructionPage(
                 pixelArray[pixelIndex * 4 + 2]
             );
             ctx.beginPath();
-            const x = (pictureWidth * 0.75 + (j * 2 + 1) * radius) + radius;
-            const y = pictureHeight * 0.2 + ((i % plateWidth) * 2 + 1) * radius;
+            const x = (pictureWidth * 1 + (j * 2 + 1) * radius) + radius; // 1 was 0.75
+            const y = pictureHeight * 0.3 + ((i % plateWidth) * 2 + 1) * radius;
             drawPixel(
                 ctx,
                 x - radius,
@@ -1230,8 +1230,8 @@ function generateInstructionPage(
         availableStudHexList,
         scalingFactor,
         ctx,
-        (pictureWidth * 0.25) - radius, // hack
-        pictureHeight * 0.2 - radius,
+        (pictureWidth * 0.33) - radius, // hack
+        pictureHeight * 0.3 - radius,
         pixelType
     );
 }

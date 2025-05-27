@@ -156,7 +156,7 @@ let targetResolution = [
 const PIXEL_WIDTH_CM = 0.8;
 const INCHES_IN_CM = 0.393701;
 const SCALING_FACTOR = 40;
-const PLATE_WIDTH = 8; // was 16
+const PLATE_WIDTH = 6; // was 16
 
 document.getElementById("width-text").title = `${(targetResolution[0] * PIXEL_WIDTH_CM).toFixed(1)} cm, ${(
     targetResolution[0] *
@@ -369,8 +369,8 @@ document.getElementById("clear-depth-overrides-button").addEventListener("click"
 });
 
 document.getElementById("resolution-limit-increase-button").addEventListener("click", () => {
-    document.getElementById("height-slider").max = 256;
-    document.getElementById("width-slider").max = 256;
+    document.getElementById("height-slider").max = 600;
+    document.getElementById("width-slider").max = 600;
     document.getElementById("resolution-limit-increase-button").hidden = true;
 });
 
