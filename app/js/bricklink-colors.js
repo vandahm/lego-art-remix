@@ -488,14 +488,20 @@ let ALL_BRICKLINK_SOLID_COLORS = [
     // The 2 below are new in 2022
     // {
     //     name: "Medium Brown",
-    //     hex: "#A16C42",
+    //     hex: "#a16c42",
     //     id: 240,
     // },
     {
         name: "Medium Tan",
-        hex: "#D9C594",
+        hex: "#d9c594",
         id: 241,
     },
+    // New color circa 2024
+    {
+        name: "Reddish Orange",
+        hex: "#ff5500",
+        id: 167,
+    }
 ];
 
 ALL_BRICKLINK_SOLID_COLORS = ALL_BRICKLINK_SOLID_COLORS.concat(PETERS_BRICKLINK_TRANS_COLORS);
@@ -542,6 +548,7 @@ const KNOWN_BRICKLINK_STUD_COLOR_NAMES = [
     "Orange",
     "Red",
     "Reddish Brown",
+    "Reddish Orange",
     "Sand Blue",
     "Sand Green",
     "Tan",
@@ -601,6 +608,7 @@ const KNOWN_BRICKLINK_TILE_COLOR_NAMES = [
     "Orange",
     "Red",
     "Reddish Brown",
+    "Reddish Orange",
     "Sand Blue",
     "Tan",
     "White",
