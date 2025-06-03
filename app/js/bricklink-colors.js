@@ -1,7 +1,7 @@
 let PETERS_BRICKLINK_TRANS_COLORS = [
     {
         name: "Trans-Dark Blue",
-        hex: "#00296B",
+        hex: "#00296b",
         id: 14
     },
     {
@@ -11,39 +11,39 @@ let PETERS_BRICKLINK_TRANS_COLORS = [
     },
     {
         name: "Trans-Light Blue",
-        hex: "#68BCC5",
+        hex: "#68bcc5",
         id: 15
     },
     {
         name: "Trans-Orange",
-        hex: "#E96F01",
+        hex: "#e96f01",
         id: 98
     },
     {
         name: "Trans-Purple",
-        hex: "#5525B7",
+        hex: "#5525b7",
         id: 51,
     },
     {
         name: "Trans-Red",
-        hex: "#9C0010",
+        hex: "#9c0010",
         id: 17
     },
     {
         name: "Trans-Yellow",
-        hex: "#EBF72D",
+        hex: "#ebf72D",
         id: 19
     }
 ]
 
 let PETERS_BRICKLINK_TRANS_HEX = [
-    "#00296B",
+    "#00296b",
     "#217625",
-    "#68BCC5",
-    "#E96F01",
+    "#68bcc5",
+    "#e96F01",
     "#5525B7",
-    "#9C0010",
-    "#EBF72D"
+    "#9c0010",
+    "#ebf72D"
 ];
 
 let ALL_BRICKLINK_SOLID_COLORS = [
@@ -506,6 +506,8 @@ const HEX_TO_COLOR_NAME = {};
 ALL_BRICKLINK_SOLID_COLORS.forEach((color) => {
     HEX_TO_COLOR_NAME[color.hex] = color.name;
 });
+
+console.log(HEX_TO_COLOR_NAME);
 
 const COLOR_NAME_TO_ID = {};
 ALL_BRICKLINK_SOLID_COLORS.forEach((color) => {
