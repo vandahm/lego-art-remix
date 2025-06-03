@@ -31,7 +31,7 @@ let PETERS_BRICKLINK_TRANS_COLORS = [
     },
     {
         name: "Trans-Yellow",
-        hex: "#ebf72D",
+        hex: "#ebf72d",
         id: 19
     }
 ]
@@ -43,7 +43,7 @@ let PETERS_BRICKLINK_TRANS_HEX = [
     "#e96F01",
     "#5525B7",
     "#9c0010",
-    "#ebf72D"
+    "#ebf72d"
 ];
 
 let ALL_BRICKLINK_SOLID_COLORS = [
