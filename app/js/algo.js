@@ -1194,7 +1194,7 @@ function generateInstructionPage(
             ctx.fillStyle = inverseHex(pixelHex);
             ctx.fillText(
                 studToNumber[pixelHex],
-                x - (scalingFactor * (1 + Math.floor(studToNumber[pixelHex] / 2) / 6)) / 8,
+                x - (scalingFactor * (1 + Math.floor(studToNumber[pixelHex] / 2) / 6)) / 10,
                 y + scalingFactor / 8
             );
         }
