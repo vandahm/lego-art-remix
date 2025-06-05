@@ -1238,7 +1238,7 @@ function runStep1() {
     );
     setTimeout(() => {
         runStep2();
-    }, 1); // TODO: find better way to check that input is finished
+    }, 100); // TODO: find better way to check that input is finished
 }
 
 function runStep2() {
@@ -1302,6 +1302,17 @@ function runStep2() {
 
     // Map the crop to the depth image
     const cropperData = inputImageCropper.getData();
+
+    // HACK: Wait 500 ms if we don't have width or height
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    if (cropperData.width === 0 || cropperData.height === 0) {
+        sleep(500);
+    }
+    // HACK: Wait 500 ms more, just to be safe
+    if (cropperData.width === 0 || cropperData.height === 0) {
+        sleep(500);
+    }
+
     const rawCroppedDepthImage = step1DepthCanvasUpscaledContext.getImageData(
         cropperData.x,
         cropperData.y,
