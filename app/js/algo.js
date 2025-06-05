@@ -34,8 +34,13 @@ function clamp255(input) {
 }
 
 function getPixelArrayFromCanvas(canvas) {
+    console.log("CANVAS DIMENSIONS");
+    console.log(canvas.width);
+    console.log(canvas.height);
+    let width = canvas.width || 288;   // HACK REMOVE THIS ASAP
+    let height = canvas.height || 144; // HACK REMOVE THIS ASAP
     const context = canvas.getContext("2d");
-    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    const pixels = context.getImageData(0, 0, width, height).data;
     return pixels;
 }
 
