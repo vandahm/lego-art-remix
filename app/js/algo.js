@@ -34,9 +34,6 @@ function clamp255(input) {
 }
 
 function getPixelArrayFromCanvas(canvas) {
-    // console.log("CANVAS DIMENSIONS");
-    // console.log(canvas.width);
-    // console.log(canvas.height);
     let width = canvas.width || 288;   // HACK REMOVE THIS ASAP
     let height = canvas.height || 144; // HACK REMOVE THIS ASAP
     const context = canvas.getContext("2d");
@@ -1084,10 +1081,6 @@ function generateInstructionTitlePage(
     const legendVerticalOffset = pictureHeight * 0.41 + radius;
     const numPlates = pixelArray.length / (4 * plateWidth * plateWidth);
     const legendSquareSide = scalingFactor;
-
-    console.log("Instruction Page");
-    console.log(finalImageCanvas.width);
-    console.log(finalImageCanvas.height);
 
     ctx.drawImage(
         finalImageCanvas,
