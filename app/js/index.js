@@ -361,16 +361,18 @@ document.getElementById("height-slider").addEventListener(
 );
 document.getElementById("clear-overrides-button").addEventListener("click", () => {
     overridePixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
+    console.log(364);
     runStep2();
 });
 document.getElementById("clear-depth-overrides-button").addEventListener("click", () => {
     overrideDepthPixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
+    console.log(369);
     runStep2();
 });
 
 document.getElementById("resolution-limit-increase-button").addEventListener("click", () => {
-    document.getElementById("height-slider").max = 384;
-    document.getElementById("width-slider").max = 384;
+    document.getElementById("height-slider").max = 144;
+    document.getElementById("width-slider").max = 288;
     document.getElementById("resolution-limit-increase-button").hidden = true;
 });
 
@@ -624,6 +626,7 @@ INTERPOLATION_ALGORITHMS.forEach((algorithm) => {
     option.addEventListener("click", () => {
         document.getElementById("interpolation-algorithm-button").innerHTML = algorithm.name;
         selectedInterpolationAlgorithm = algorithm.value;
+        console.log(629);
         runStep2();
     });
     document.getElementById("interpolation-algorithm-options").appendChild(option);
@@ -976,6 +979,8 @@ document.getElementById("add-custom-stud-button").addEventListener("click", () =
 
 const onHueChange = () => {
     document.getElementById("hue-text").innerHTML = document.getElementById("hue-slider").value + "<span>&#176;</span>";
+    console.log("onHueChange");
+    console.log(983);
     runStep2();
 };
 document.getElementById("hue-slider").addEventListener("change", onHueChange, false);
@@ -1002,6 +1007,8 @@ document.getElementById("hue-decrement").addEventListener(
 
 const onSaturationChange = () => {
     document.getElementById("saturation-text").innerHTML = document.getElementById("saturation-slider").value + "%";
+    console.log("onSaturationChange");
+    console.log(1011);
     runStep2();
 };
 document.getElementById("saturation-slider").addEventListener("change", onSaturationChange, false);
@@ -1036,6 +1043,7 @@ document.getElementById("saturation-decrement").addEventListener(
 
 const onValueChange = () => {
     document.getElementById("value-text").innerHTML = document.getElementById("value-slider").value + "%";
+    console.log(1046);
     runStep2();
 };
 document.getElementById("value-slider").addEventListener("change", onValueChange, false);
@@ -1068,6 +1076,7 @@ const onBrightnessChange = () => {
     document.getElementById("brightness-text").innerHTML =
         (document.getElementById("brightness-slider").value > 0 ? "+" : "") +
         document.getElementById("brightness-slider").value;
+    console.log(1079);
     runStep2();
 };
 document.getElementById("brightness-slider").addEventListener("change", onBrightnessChange, false);
@@ -1104,6 +1113,7 @@ const onContrastChange = () => {
     document.getElementById("contrast-text").innerHTML =
         (document.getElementById("contrast-slider").value > 0 ? "+" : "") +
         document.getElementById("contrast-slider").value;
+    console.log(1116);
     runStep2();
 };
 document.getElementById("contrast-slider").addEventListener("change", onContrastChange, false);
@@ -1180,6 +1190,7 @@ document.getElementById("reset-hsv-button").addEventListener(
             document.getElementById("hue-slider").value + "<span>&#176;</span>";
         document.getElementById("saturation-text").innerHTML = document.getElementById("saturation-slider").value + "%";
         document.getElementById("value-text").innerHTML = document.getElementById("value-slider").value + "%";
+        console.log("getElementById Line 1193");
         runStep2();
     },
     false
@@ -1190,6 +1201,7 @@ document.getElementById("reset-brightness-button").addEventListener(
     () => {
         document.getElementById("brightness-slider").value = 0;
         document.getElementById("brightness-text").innerHTML = document.getElementById("brightness-slider").value;
+        console.log(1204);
         runStep2();
     },
     false
@@ -1200,6 +1212,7 @@ document.getElementById("reset-contrast-button").addEventListener(
     () => {
         document.getElementById("contrast-slider").value = 0;
         document.getElementById("contrast-text").innerHTML = document.getElementById("contrast-slider").value;
+        console.log(1215);
         runStep2();
     },
     false
@@ -1237,8 +1250,9 @@ function runStep1() {
         step1CanvasUpscaled.height
     );
     setTimeout(() => {
+        console.log(1253);
         runStep2();
-    }, 1); // TODO: find better way to check that input is finished
+    }, 100); // TODO: find better way to check that input is finished
 }
 
 function runStep2() {
