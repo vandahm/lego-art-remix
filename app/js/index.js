@@ -1238,7 +1238,7 @@ function runStep1() {
     );
     setTimeout(() => {
         runStep2();
-    }, 200); // TODO: find better way to check that input is finished
+    }, 1); // TODO: find better way to check that input is finished
 }
 
 function runStep2() {
@@ -1302,11 +1302,19 @@ function runStep2() {
 
     // Map the crop to the depth image
     const cropperData = inputImageCropper.getData();
+    console.log("getImageData() During Step 2");
+    console.log(cropperData.width);
+    console.log(cropperData.height);
+    console.log(cropperData);
+
+    let hackedWidth = cropperData.width || 512;
+    let hackedHeight = cropperData.height || 256;
+
     const rawCroppedDepthImage = step1DepthCanvasUpscaledContext.getImageData(
         cropperData.x,
         cropperData.y,
-        cropperData.width,
-        cropperData.height
+        hackedWidth,
+        hackedHeight
     );
     const cropperBufferCanvas = document.getElementById("step-2-depth-canvas-cropper-buffer");
     const cropperBufferCanvasContext = cropperBufferCanvas.getContext("2d");
@@ -1359,6 +1367,29 @@ function runStep2() {
         );
     }, 1); // TODO: find better way to check that input is finished
 }
+
+// async function runWrappedStep2() {
+//     let myWidth = 0;
+//     let myHeight = 0;
+
+//     while (myWidth <= 0 || myHeight <= 0) {}
+//     setTimeout(function() {
+//         runStep2();
+//     }, 10);
+
+//     while (width === 0 && height === 0) {
+//         let cropperData = inputImageCropper.getData();
+//         console.log("getImageData() During Step 2 Wrapper");
+//         console.log(cropperData.width);
+//         console.log(cropperData.height);
+//         console.log(cropperData);
+//     }
+//     const cropperData = inputImageCropper.getData();
+//     console.log("getImageData() During Step 2");
+//     console.log(cropperData.width);
+//     console.log(cropperData.height);
+//     console.log(cropperData);
+// }
 
 function getVariablePixelAvailablePartDimensions() {
     const availableParts = [...document.getElementById("pixel-dimensions-container").children]
