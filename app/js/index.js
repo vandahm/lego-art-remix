@@ -1206,6 +1206,11 @@ document.getElementById("reset-contrast-button").addEventListener(
 );
 
 function runStep1() {
+    // Check if an image is loaded before processing
+    if (!inputImageCropper || !inputImageCropper.ready) {
+        return;
+    }
+    
     disableInteraction();
     updateStudCountText();
 
@@ -1242,6 +1247,11 @@ function runStep1() {
 }
 
 function runStep2() {
+    // Safety check - ensure cropper is ready
+    if (!inputImageCropper || !inputImageCropper.ready) {
+        return;
+    }
+    
     let inputPixelArray;
     if (selectedInterpolationAlgorithm === "default") {
         const croppedCanvas = inputImageCropper.getCroppedCanvas({
@@ -1610,6 +1620,122 @@ function onDepthOverrideChange(row, col, isIncrease) {
     }
 }
 
+function onPaintBucketFill(row, col) {
+    const pixelIndex = 4 * (row * targetResolution[0] + col);
+    const replacementColorRGB = document
+        .getElementById("paintbrush-controls")
+        .children[0].children[0].children[0].style.backgroundColor.replace("rgb(", "")
+        .replace(")", "")
+        .split(/,\s*/)
+        .map((shade) => parseInt(shade));
+    
+    // Get the target color (color to be replaced)
+    let targetColorRGB;
+    if (overridePixelArray[pixelIndex] !== null && 
+        overridePixelArray[pixelIndex + 1] !== null && 
+        overridePixelArray[pixelIndex + 2] !== null) {
+        targetColorRGB = [
+            overridePixelArray[pixelIndex],
+            overridePixelArray[pixelIndex + 1],
+            overridePixelArray[pixelIndex + 2]
+        ];
+    } else {
+        targetColorRGB = [
+            step3PixelArrayForEraser[pixelIndex],
+            step3PixelArrayForEraser[pixelIndex + 1],
+            step3PixelArrayForEraser[pixelIndex + 2]
+        ];
+    }
+    
+    // Don't fill if target and replacement colors are the same
+    if (targetColorRGB[0] === replacementColorRGB[0] && 
+        targetColorRGB[1] === replacementColorRGB[1] && 
+        targetColorRGB[2] === replacementColorRGB[2]) {
+        return;
+    }
+    
+    // Perform flood fill using BFS
+    const visited = new Set();
+    const queue = [[row, col]];
+    const pixelsToFill = [];
+    const maxPixels = targetResolution[0] * targetResolution[1]; // Safety limit
+    
+    while (queue.length > 0 && pixelsToFill.length < maxPixels) {
+        const [currentRow, currentCol] = queue.shift();
+        const key = `${currentRow},${currentCol}`;
+        
+        // Skip if already visited or out of bounds
+        if (visited.has(key) || 
+            currentRow < 0 || currentRow >= targetResolution[1] ||
+            currentCol < 0 || currentCol >= targetResolution[0]) {
+            continue;
+        }
+        
+        visited.add(key);
+        const currentPixelIndex = 4 * (currentRow * targetResolution[0] + currentCol);
+        
+        // Get current pixel color
+        let currentColorRGB;
+        if (overridePixelArray[currentPixelIndex] !== null && 
+            overridePixelArray[currentPixelIndex + 1] !== null && 
+            overridePixelArray[currentPixelIndex + 2] !== null) {
+            currentColorRGB = [
+                overridePixelArray[currentPixelIndex],
+                overridePixelArray[currentPixelIndex + 1],
+                overridePixelArray[currentPixelIndex + 2]
+            ];
+        } else {
+            currentColorRGB = [
+                step3PixelArrayForEraser[currentPixelIndex],
+                step3PixelArrayForEraser[currentPixelIndex + 1],
+                step3PixelArrayForEraser[currentPixelIndex + 2]
+            ];
+        }
+        
+        // Check if this pixel matches the target color
+        if (currentColorRGB[0] === targetColorRGB[0] && 
+            currentColorRGB[1] === targetColorRGB[1] && 
+            currentColorRGB[2] === targetColorRGB[2]) {
+            
+            // Add to fill list
+            pixelsToFill.push([currentRow, currentCol, currentPixelIndex]);
+            
+            // Add neighbors to queue (4-connected)
+            queue.push([currentRow - 1, currentCol]); // Up
+            queue.push([currentRow + 1, currentCol]); // Down
+            queue.push([currentRow, currentCol - 1]); // Left
+            queue.push([currentRow, currentCol + 1]); // Right
+        }
+    }
+    
+    // Apply the fill to all matching pixels
+    const ctx = step3CanvasUpscaledContext;
+    const radius = SCALING_FACTOR / 2;
+    const replacementHex = rgbToHex(replacementColorRGB[0], replacementColorRGB[1], replacementColorRGB[2]);
+    
+    pixelsToFill.forEach(([fillRow, fillCol, fillPixelIndex]) => {
+        // Update override array
+        overridePixelArray[fillPixelIndex] = replacementColorRGB[0];
+        overridePixelArray[fillPixelIndex + 1] = replacementColorRGB[1];
+        overridePixelArray[fillPixelIndex + 2] = replacementColorRGB[2];
+        
+        // Update canvas
+        const i = fillPixelIndex / 4;
+        ctx.beginPath();
+        ctx.arc(
+            ((i % targetResolution[0]) * 2 + 1) * radius,
+            (Math.floor(i / targetResolution[0]) * 2 + 1) * radius,
+            radius,
+            0,
+            2 * Math.PI
+        );
+        ctx.fillStyle = replacementHex;
+        ctx.fill();
+    });
+    
+    wasPaintbrushUsed = true;
+}
+
 function onCherryPickColor(row, col) {
     const pixelIndex = 4 * (row * targetResolution[0] + col);
     const isOverridden =
@@ -1667,14 +1793,21 @@ step3CanvasUpscaled.addEventListener(
             step3CanvasUpscaled.offsetWidth / targetResolution[0] / 2;
         const row = Math.round((rawRow * targetResolution[1]) / step3CanvasUpscaled.offsetHeight);
         const col = Math.round((rawCol * targetResolution[0]) / step3CanvasUpscaled.offsetWidth);
-        const rgb = document
-            .getElementById("paintbrush-controls")
-            .children[0].children[0].children[0].style.backgroundColor.replace("rgb(", "")
-            .replace(")", "")
-            .split(/,\s*/)
-            .map((shade) => parseInt(shade));
-        activePaintbrushHex = rgbToHex(rgb[0], rgb[1], rgb[2]);
-        onMouseMoveOverStep3Canvas(event); // so we paint on a single click
+        
+        if (selectedPaintbrushTool === "paint-bucket-tool-dropdown-option") {
+            // Paint bucket is a single-click operation
+            onPaintBucketFill(row, col);
+        } else {
+            // Regular paintbrush/eraser tools use drag behavior
+            const rgb = document
+                .getElementById("paintbrush-controls")
+                .children[0].children[0].children[0].style.backgroundColor.replace("rgb(", "")
+                .replace(")", "")
+                .split(/,\s*/)
+                .map((shade) => parseInt(shade));
+            activePaintbrushHex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+            onMouseMoveOverStep3Canvas(event); // so we paint on a single click
+        }
     },
     false
 );
@@ -1684,7 +1817,7 @@ Array.from(document.getElementById("paintbrush-tool-selection-dropdown-options")
     const value = item.id;
     item.addEventListener("click", () => {
         selectedPaintbrushTool = value;
-        document.getElementById("paintbrush-color-dropdown").disabled = value !== "paintbrush-tool-dropdown-option";
+        document.getElementById("paintbrush-color-dropdown").disabled = value !== "paintbrush-tool-dropdown-option" && value !== "paint-bucket-tool-dropdown-option";
         document.getElementById("paintbrush-tool-selection-dropdown").innerHTML = item.children[0].innerHTML;
     });
 });
@@ -1756,9 +1889,12 @@ function onMouseMoveOverStep3Canvas(event) {
                 overridePixelArray[pixelIndex + 1] = null;
                 overridePixelArray[pixelIndex + 2] = null;
             }
-        } else {
+        } else if (selectedPaintbrushTool === "dropper-tool-dropdown-option") {
             // dropper tool
             onCherryPickColor(row, col);
+        } else if (selectedPaintbrushTool === "paint-bucket-tool-dropdown-option") {
+            // paint bucket tool
+            onPaintBucketFill(row, col);
         }
     } else if (pixelIndex + 2 < step3CanvasPixelsForHover.length) {
         // we're not painting - highlight the pixel instead
