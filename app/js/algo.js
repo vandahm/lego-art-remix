@@ -860,7 +860,8 @@ function revertDarkenedImage(pixels, darkenedStudsToStuds) {
     const outputPixels = [...pixels];
     for (let i = 0; i < pixels.length; i += 4) {
         const pixelHex = rgbToHex(pixels[i], pixels[i + 1], pixels[i + 2]);
-        const revertedPixelHex = pixelHex === "#000000" ? "#000000" : darkenedStudsToStuds[pixelHex];
+        // If color isn't in mapping (e.g., manually painted), keep original color
+        const revertedPixelHex = pixelHex === "#000000" ? "#000000" : (darkenedStudsToStuds[pixelHex] || pixelHex);
         const revertedPixelRGB = hexToRgb(revertedPixelHex);
         for (let j = 0; j < 3; j++) {
             outputPixels[i + j] = revertedPixelRGB[j];

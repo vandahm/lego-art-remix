@@ -185,6 +185,7 @@ function initializeCropper() {
             overrideDepthPixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
             isStep3CacheValid = false;
             cachedStep3AlignedPixelArray = null;
+            cachedStep3PixelArrayForEraser = null;
         },
     });
 }
@@ -326,12 +327,14 @@ let overrideDepthPixelArray = new Array(targetResolution[0] * targetResolution[1
 
 // Cache for Step 3 results to avoid recomputation during pixel editing
 let cachedStep3AlignedPixelArray = null;
+let cachedStep3PixelArrayForEraser = null;  // Cache the eraser base array too
 let isStep3CacheValid = false;
 
 function handleResolutionChange() {
     overridePixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
     overrideDepthPixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
     cachedStep3AlignedPixelArray = null;
+    cachedStep3PixelArrayForEraser = null;
     isStep3CacheValid = false;
     document.getElementById("width-text").title = `${(targetResolution[0] * PIXEL_WIDTH_CM).toFixed(1)} cm, ${(
         targetResolution[0] *
@@ -1267,6 +1270,7 @@ function runStep2() {
     // Invalidate Step 3 cache when Step 2 runs
     isStep3CacheValid = false;
     cachedStep3AlignedPixelArray = null;
+    cachedStep3PixelArrayForEraser = null;
     
     let inputPixelArray;
     if (selectedInterpolationAlgorithm === "default") {
@@ -1414,6 +1418,8 @@ let step3VariablePixelPieceDimensions = null;
 function runStep3(forceRecompute = false) {
     // Use cached result if available and valid, unless forced to recompute
     if (!forceRecompute && isStep3CacheValid && cachedStep3AlignedPixelArray) {
+        // Restore the eraser array from cache
+        step3PixelArrayForEraser = cachedStep3PixelArrayForEraser;
         updateStep3Display(cachedStep3AlignedPixelArray);
         return;
     }
@@ -1456,8 +1462,9 @@ function runStep3(forceRecompute = false) {
         isBleedthroughEnabled() ? getDarkenedImage(overridePixelArray) : overridePixelArray
     );
 
-    // Cache the computed result
+    // Cache the computed result and the eraser base array
     cachedStep3AlignedPixelArray = [...alignedPixelArray];
+    cachedStep3PixelArrayForEraser = [...step3PixelArrayForEraser];
     isStep3CacheValid = true;
 
     step3DepthCanvas.width = targetResolution[0];
@@ -2003,11 +2010,12 @@ function onMouseMoveOverStep3Canvas(event) {
                 overridePixelArray[pixelIndex + 1] = null;
                 overridePixelArray[pixelIndex + 2] = null;
                 
-                // Also update the cached Step 3 array directly
-                if (cachedStep3AlignedPixelArray && step3PixelArrayForEraser) {
-                    cachedStep3AlignedPixelArray[pixelIndex] = step3PixelArrayForEraser[pixelIndex];
-                    cachedStep3AlignedPixelArray[pixelIndex + 1] = step3PixelArrayForEraser[pixelIndex + 1];
-                    cachedStep3AlignedPixelArray[pixelIndex + 2] = step3PixelArrayForEraser[pixelIndex + 2];
+                // Also update the cached Step 3 array directly  
+                // When erasing, restore from the cached eraser base array
+                if (cachedStep3AlignedPixelArray && cachedStep3PixelArrayForEraser) {
+                    cachedStep3AlignedPixelArray[pixelIndex] = cachedStep3PixelArrayForEraser[pixelIndex];
+                    cachedStep3AlignedPixelArray[pixelIndex + 1] = cachedStep3PixelArrayForEraser[pixelIndex + 1];
+                    cachedStep3AlignedPixelArray[pixelIndex + 2] = cachedStep3PixelArrayForEraser[pixelIndex + 2];
                 }
             }
         } else if (selectedPaintbrushTool === "dropper-tool-dropdown-option") {
