@@ -183,6 +183,8 @@ function initializeCropper() {
         cropend() {
             overridePixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
             overrideDepthPixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
+            isStep3CacheValid = false;
+            cachedStep3AlignedPixelArray = null;
         },
     });
 }
@@ -240,7 +242,8 @@ Object.keys(PLATE_DIMENSIONS_TO_PART_ID).forEach((plate) => {
         if (container === "pixel-dimensions-container") {
             checkbox.addEventListener("change", () => {
                 disableInteraction();
-                runStep3();
+                isStep3CacheValid = false;
+                runStep3(true);  // Force recompute when stud map changes
             });
             const classes = [];
             if (PLATE_DIMENSIONS_TO_PART_ID[plate]) {
@@ -321,9 +324,15 @@ document.getElementById("bricklink-piece-button").innerHTML = PIXEL_TYPE_OPTIONS
 let overridePixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
 let overrideDepthPixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
 
+// Cache for Step 3 results to avoid recomputation during pixel editing
+let cachedStep3AlignedPixelArray = null;
+let isStep3CacheValid = false;
+
 function handleResolutionChange() {
     overridePixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
     overrideDepthPixelArray = new Array(targetResolution[0] * targetResolution[1] * 4).fill(null);
+    cachedStep3AlignedPixelArray = null;
+    isStep3CacheValid = false;
     document.getElementById("width-text").title = `${(targetResolution[0] * PIXEL_WIDTH_CM).toFixed(1)} cm, ${(
         targetResolution[0] *
         PIXEL_WIDTH_CM *
@@ -510,7 +519,8 @@ PIXEL_TYPE_OPTIONS.forEach((part) => {
 
         onInfinitePieceCountChange();
         updateForceInfinitePieceCountText();
-        runStep3();
+        isStep3CacheValid = false;
+        runStep3(true);  // Force recompute when quantization algorithm changes
     });
     bricklinkPieceOptions.appendChild(option);
 });
@@ -695,7 +705,8 @@ Object.keys(colorDistanceFunctionsInfo).forEach((key) => {
         document.getElementById("distance-function-button").innerHTML = distanceFunction.name;
         colorDistanceFunction = distanceFunction.func;
         disableInteraction();
-        runStep3();
+        isStep3CacheValid = false;
+        runStep3(true);  // Force recompute when distance function changes
     });
     document.getElementById("distance-function-options").appendChild(option);
 });
@@ -749,7 +760,8 @@ Object.keys(quantizationAlgorithmsInfo).forEach((key) => {
 
         disableInteraction();
         onInfinitePieceCountChange();
-        runStep3();
+        isStep3CacheValid = false;
+        runStep3(true);  // Force recompute when piece count settings change
     });
     document.getElementById("quantization-algorithm-options").appendChild(option);
 });
@@ -1252,6 +1264,10 @@ function runStep2() {
         return;
     }
     
+    // Invalidate Step 3 cache when Step 2 runs
+    isStep3CacheValid = false;
+    cachedStep3AlignedPixelArray = null;
+    
     let inputPixelArray;
     if (selectedInterpolationAlgorithm === "default") {
         const croppedCanvas = inputImageCropper.getCroppedCanvas({
@@ -1395,7 +1411,13 @@ function getVariablePixelAvailablePartDimensions() {
 // only non null if pixel piece is variable
 let step3VariablePixelPieceDimensions = null;
 
-function runStep3() {
+function runStep3(forceRecompute = false) {
+    // Use cached result if available and valid, unless forced to recompute
+    if (!forceRecompute && isStep3CacheValid && cachedStep3AlignedPixelArray) {
+        updateStep3Display(cachedStep3AlignedPixelArray);
+        return;
+    }
+
     const fiteredPixelArray = getPixelArrayFromCanvas(step2Canvas);
 
     let alignedPixelArray;
@@ -1433,6 +1455,10 @@ function runStep3() {
         alignedPixelArray,
         isBleedthroughEnabled() ? getDarkenedImage(overridePixelArray) : overridePixelArray
     );
+
+    // Cache the computed result
+    cachedStep3AlignedPixelArray = [...alignedPixelArray];
+    isStep3CacheValid = true;
 
     step3DepthCanvas.width = targetResolution[0];
     step3DepthCanvas.height = targetResolution[1];
@@ -1539,6 +1565,78 @@ function runStep3() {
     }, 1); // TODO: find better way to check that input is finished
 }
 
+// Separate display function that doesn't recompute, just displays the cached result
+function updateStep3Display(alignedPixelArray) {
+    if (!alignedPixelArray) return;
+    
+    // Update canvases with the provided pixel array
+    step3Canvas.width = targetResolution[0];
+    step3Canvas.height = targetResolution[1];
+    drawPixelsOnCanvas(alignedPixelArray, step3Canvas);
+    
+    step3CanvasPixelsForHover = isBleedthroughEnabled()
+        ? revertDarkenedImage(
+              alignedPixelArray,
+              getDarkenedStudsToStuds(ALL_BRICKLINK_SOLID_COLORS.map((color) => color.hex))
+          )
+        : alignedPixelArray;
+    
+    // Update upscaled canvas
+    step3CanvasUpscaledContext.imageSmoothingEnabled = false;
+    drawStudImageOnCanvas(
+        isBleedthroughEnabled()
+            ? revertDarkenedImage(
+                  alignedPixelArray,
+                  getDarkenedStudsToStuds(ALL_BRICKLINK_SOLID_COLORS.map((color) => color.hex))
+              )
+            : alignedPixelArray,
+        targetResolution[0],
+        SCALING_FACTOR,
+        step3CanvasUpscaled,
+        selectedPixelPartNumber,
+        step3VariablePixelPieceDimensions
+    );
+    
+    // Handle depth canvas updates
+    const inputDepthPixelArray = getPixelArrayFromCanvas(step2DepthCanvas);
+    const adjustedDepthPixelArray = getArrayWithOverridesApplied(inputDepthPixelArray, overrideDepthPixelArray);
+    
+    step3DepthCanvas.width = targetResolution[0];
+    step3DepthCanvas.height = targetResolution[1];
+    drawPixelsOnCanvas(adjustedDepthPixelArray, step3DepthCanvas);
+    
+    step3DepthCanvasUpscaled.width = targetResolution[0] * SCALING_FACTOR;
+    step3DepthCanvasUpscaled.height = targetResolution[1] * SCALING_FACTOR;
+    drawStudImageOnCanvas(
+        scaleUpDiscreteDepthPixelsForDisplay(
+            adjustedDepthPixelArray,
+            document.getElementById("num-depth-levels-slider").value
+        ),
+        targetResolution[0],
+        SCALING_FACTOR,
+        step3DepthCanvasUpscaled,
+        selectedPixelPartNumber
+    );
+    
+    step3DepthCanvasPixelsForHover = adjustedDepthPixelArray;
+    
+    // Update quantization error if needed
+    const fiteredPixelArray = getPixelArrayFromCanvas(step2Canvas);
+    const step3QuantizationError = getAverageQuantizationError(
+        fiteredPixelArray,
+        alignedPixelArray,
+        colorDistanceFunction
+    );
+    document.getElementById("step-3-quantization-error").innerHTML = step3QuantizationError.toFixed(3);
+    
+    // Continue to Step 4 if not expanded
+    if (!isStep3ViewExpanded) {
+        setTimeout(() => runStep4(), 1);
+    } else {
+        enableInteraction();
+    }
+}
+
 let isStep3ViewExpanded = false;
 
 [document.getElementById("toggle-expansion-button"), document.getElementById("toggle-depth-expansion-button")].forEach(
@@ -1616,7 +1714,8 @@ function onDepthOverrideChange(row, col, isIncrease) {
         ctx.fillStyle = rgbToHex(upscaledPixelDisplayVal, upscaledPixelDisplayVal, upscaledPixelDisplayVal);
         ctx.fill();
     } else {
-        runStep3();
+        isStep3CacheValid = false;
+        runStep3(true);  // Force recompute when not using dropper
     }
 }
 
@@ -1719,6 +1818,13 @@ function onPaintBucketFill(row, col) {
         overridePixelArray[fillPixelIndex + 1] = replacementColorRGB[1];
         overridePixelArray[fillPixelIndex + 2] = replacementColorRGB[2];
         
+        // Also update the cached Step 3 array directly
+        if (cachedStep3AlignedPixelArray) {
+            cachedStep3AlignedPixelArray[fillPixelIndex] = replacementColorRGB[0];
+            cachedStep3AlignedPixelArray[fillPixelIndex + 1] = replacementColorRGB[1];
+            cachedStep3AlignedPixelArray[fillPixelIndex + 2] = replacementColorRGB[2];
+        }
+        
         // Update canvas
         const i = fillPixelIndex / 4;
         ctx.beginPath();
@@ -1774,7 +1880,8 @@ function onStep3PaintingMouseLift() {
     // propogate changes
     if (!isStep3ViewExpanded && wasPaintbrushUsed) {
         disableInteraction();
-        runStep3();
+        // Just update display, don't recompute
+        updateStep3Display(cachedStep3AlignedPixelArray);
         wasPaintbrushUsed = false;
     }
 }
@@ -1861,6 +1968,13 @@ function onMouseMoveOverStep3Canvas(event) {
             overridePixelArray[pixelIndex] = colorRGB[0];
             overridePixelArray[pixelIndex + 1] = colorRGB[1];
             overridePixelArray[pixelIndex + 2] = colorRGB[2];
+            
+            // Also update the cached Step 3 array directly
+            if (cachedStep3AlignedPixelArray) {
+                cachedStep3AlignedPixelArray[pixelIndex] = colorRGB[0];
+                cachedStep3AlignedPixelArray[pixelIndex + 1] = colorRGB[1];
+                cachedStep3AlignedPixelArray[pixelIndex + 2] = colorRGB[2];
+            }
         } else if (selectedPaintbrushTool === "eraser-tool-dropdown-option") {
             // null out the override
             if (
@@ -1888,6 +2002,13 @@ function onMouseMoveOverStep3Canvas(event) {
                 overridePixelArray[pixelIndex] = null;
                 overridePixelArray[pixelIndex + 1] = null;
                 overridePixelArray[pixelIndex + 2] = null;
+                
+                // Also update the cached Step 3 array directly
+                if (cachedStep3AlignedPixelArray && step3PixelArrayForEraser) {
+                    cachedStep3AlignedPixelArray[pixelIndex] = step3PixelArrayForEraser[pixelIndex];
+                    cachedStep3AlignedPixelArray[pixelIndex + 1] = step3PixelArrayForEraser[pixelIndex + 1];
+                    cachedStep3AlignedPixelArray[pixelIndex + 2] = step3PixelArrayForEraser[pixelIndex + 2];
+                }
             }
         } else if (selectedPaintbrushTool === "dropper-tool-dropdown-option") {
             // dropper tool

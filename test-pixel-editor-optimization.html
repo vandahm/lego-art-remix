@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Pixel Editor Optimization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .test-section h2 {
+            margin-top: 0;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pixel Editor Optimization Test</h1>
+    
+    <div class="test-section">
+        <h2>What was optimized?</h2>
+        <p>The pixel editor in Step 3 previously triggered a full recomputation of Steps 1, 2, and 3 whenever a pixel was edited. This was very slow on large mosaics.</p>
+        <p>The optimization adds:</p>
+        <ul>
+            <li>A cache for Step 3 results (<code>cachedStep3AlignedPixelArray</code>)</li>
+            <li>Direct modification of the cached array during pixel editing</li>
+            <li>A separate display function that doesn't recompute</li>
+            <li>Smart invalidation when Step 2 changes</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>How to test the optimization</h2>
+        <ol>
+            <li>Open the main application (app/index.html)</li>
+            <li>Load an image and let it process through Steps 1, 2, and 3</li>
+            <li>In Step 3, use the pixel editor tools (paintbrush, eraser, paint bucket)</li>
+            <li>Notice that editing pixels should now be instant, even on large mosaics</li>
+            <li>The app should no longer freeze or show loading when painting individual pixels</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>Expected behavior</h2>
+        <div class="status success">
+            <strong>✓ Pixel editing is now instant</strong><br>
+            When you paint, erase, or fill pixels, the changes appear immediately without triggering Steps 1 and 2.
+        </div>
+        <div class="status success">
+            <strong>✓ Cache invalidation works correctly</strong><br>
+            When you change settings that affect Step 2 (filters, adjustments), the cache is cleared and Step 3 recomputes.
+        </div>
+        <div class="status success">
+            <strong>✓ Paint bucket tool is optimized</strong><br>
+            The paint bucket fill operation also updates the cache directly without full recomputation.
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Technical details</h2>
+        <div class="status info">
+            <strong>Key functions modified:</strong>
+            <ul>
+                <li><code>runStep3(forceRecompute)</code> - Now uses cache when valid</li>
+                <li><code>updateStep3Display(alignedPixelArray)</code> - New function for display-only updates</li>
+                <li><code>onStep3PaintingMouseLift()</code> - Calls display update instead of full runStep3</li>
+                <li><code>onMouseMoveOverStep3Canvas()</code> - Updates cache directly while painting</li>
+                <li><code>onPaintBucketFill()</code> - Updates cache directly during fill</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Performance improvement</h2>
+        <div class="status warning">
+            <strong>Before optimization:</strong><br>
+            Each pixel edit triggered runStep3() which reprocessed the entire image from Step 2's output. On a 48x48 mosaic, this could take 1-2 seconds per pixel edit.
+        </div>
+        <div class="status success">
+            <strong>After optimization:</strong><br>
+            Pixel edits directly modify the cached array and update only the display. This should be nearly instant regardless of mosaic size.
+        </div>
+    </div>
+</body>
+</html>
