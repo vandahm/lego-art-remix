@@ -981,7 +981,7 @@ function drawStudCountForContext(
     pixelType
 ) {
     const radius = scalingFactor / 2;
-    ctx.font = `${scalingFactor / 2}px Arial`;
+    ctx.font = `${scalingFactor / 3}px Arial`;
     availableStudHexList.forEach((pixelHex, i) => {
         const number = i + 1;
         ctx.beginPath();
@@ -1002,9 +1002,9 @@ function drawStudCountForContext(
         if (!("" + pixelType).match("^variable.*$")) {
             ctx.fillText(`X ${studMap[pixelHex] || 0}`, x + radius * 1.5, y);
         }
-        ctx.font = `${scalingFactor / 2.5}px Arial`;
+        ctx.font = `${scalingFactor / 4}px Arial`;
         ctx.fillText(HEX_TO_COLOR_NAME[pixelHex] || pixelHex, x + radius * 1.5, y + scalingFactor / 2.5);
-        ctx.font = `${scalingFactor / 2}px Arial`;
+        ctx.font = `${scalingFactor / 3}px Arial`;
     });
 
     ctx.lineWidth = 5;
@@ -1039,7 +1039,7 @@ function generateInstructionTitlePage(
     const studMap = getUsedPixelsStudMap(pixelArray);
 
     canvas.height = Math.max(pictureHeight * 1.5, pictureHeight * 0.4 + availableStudHexList.length * radius * 2.5);
-    canvas.width = pictureWidth * 2;
+    canvas.width = pictureWidth * 3;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1048,22 +1048,22 @@ function generateInstructionTitlePage(
         availableStudHexList,
         scalingFactor,
         ctx,
-        pictureWidth * 0.25,
+        pictureWidth * 0.3,
         pictureHeight * 0.2 - radius,
         pixelType
     );
 
     ctx.fillStyle = "#000000";
-    ctx.font = `${scalingFactor * 2}px Arial`;
-    ctx.fillText("Lego Art Remix", pictureWidth * 0.75, pictureHeight * 0.28);
-    ctx.font = `${scalingFactor / 2}px Arial`;
+    ctx.font = `${scalingFactor}px Arial`;
+    ctx.fillText("Lego Art Remix", pictureWidth * 1.5, pictureHeight * 0.28);
+    ctx.font = `${scalingFactor / 4}px Arial`;
     ctx.fillText(
         `Resolution: ${width} x ${pixelArray.length / (4 * width)}`,
-        pictureWidth * 0.75,
+        pictureWidth * 1.5,
         pictureHeight * 0.34
     );
 
-    const legendHorizontalOffset = pictureWidth * 0.75;
+    const legendHorizontalOffset = pictureWidth * 1.5;
     const legendVerticalOffset = pictureHeight * 0.41;
     const numPlates = pixelArray.length / (4 * plateWidth * plateWidth);
     const legendSquareSide = scalingFactor;
@@ -1082,7 +1082,7 @@ function generateInstructionTitlePage(
 
     ctx.lineWidth = 5;
     ctx.strokeStyle = "#000000";
-    ctx.font = `${legendSquareSide / 2}px Arial`;
+    ctx.font = `${legendSquareSide / 3}px Arial`;
 
     for (var i = 0; i < numPlates; i++) {
         const horIndex = ((i * plateWidth) % width) / plateWidth;
@@ -1122,34 +1122,37 @@ function generateInstructionPage(
     const radius = scalingFactor / 2;
 
     const studMap = getUsedPixelsStudMap(pixelArray);
+    
+    // Filter to only colors used on this plate
+    const plateStudHexList = availableStudHexList.filter(hex => (studMap[hex] || 0) > 0);
 
-    canvas.height = Math.max(pictureHeight * 1.5, pictureHeight * 0.4 + availableStudHexList.length * radius * 2.5);
-    canvas.width = pictureWidth * 2;
+    canvas.height = Math.max(pictureHeight * 1.5, pictureHeight * 0.4 + plateStudHexList.length * radius * 2.5);
+    canvas.width = pictureWidth * 3;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.rect(pictureWidth * 0.75, pictureHeight * 0.2, pictureWidth, pictureHeight);
+    ctx.rect(pictureWidth * 1.5, pictureHeight * 0.2, pictureWidth, pictureHeight);
     ctx.stroke();
     ctx.fillStyle = "#000000";
-    ctx.fillRect(pictureWidth * 0.75, pictureHeight * 0.2, pictureWidth, pictureHeight);
+    ctx.fillRect(pictureWidth * 1.5, pictureHeight * 0.2, pictureWidth, pictureHeight);
 
     ctx.lineWidth = 5;
     ctx.strokeStyle = "#000000";
-    ctx.font = `${scalingFactor}px Arial`;
+    ctx.font = `${scalingFactor / 2}px Arial`;
     ctx.beginPath();
-    ctx.fillText(`Section ${plateNumber}`, pictureWidth * 0.75, pictureHeight * 0.2 - scalingFactor);
+    ctx.fillText(`Section ${plateNumber}`, pictureWidth * 1.5, pictureHeight * 0.2 - scalingFactor / 2);
     ctx.stroke();
 
     ctx.lineWidth = 1;
 
     const studToNumber = {};
-    availableStudHexList.forEach((stud, i) => {
+    plateStudHexList.forEach((stud, i) => {
         studToNumber[stud] = i + 1;
     });
 
-    ctx.font = `${scalingFactor / 2}px Arial`;
+    ctx.font = `${scalingFactor / 3}px Arial`;
 
     for (let i = 0; i < plateWidth; i++) {
         for (let j = 0; j < plateWidth; j++) {
@@ -1160,7 +1163,7 @@ function generateInstructionPage(
                 pixelArray[pixelIndex * 4 + 2]
             );
             ctx.beginPath();
-            const x = pictureWidth * 0.75 + (j * 2 + 1) * radius;
+            const x = pictureWidth * 1.5 + (j * 2 + 1) * radius;
             const y = pictureHeight * 0.2 + ((i % plateWidth) * 2 + 1) * radius;
             drawPixel(
                 ctx,
@@ -1174,8 +1177,8 @@ function generateInstructionPage(
             ctx.fillStyle = inverseHex(pixelHex);
             ctx.fillText(
                 studToNumber[pixelHex],
-                x - (scalingFactor * (1 + Math.floor(studToNumber[pixelHex] / 2) / 6)) / 8,
-                y + scalingFactor / 8
+                x - (scalingFactor * (1 + Math.floor(studToNumber[pixelHex] / 10) / 6)) / 16,
+                y + scalingFactor / 12
             );
         }
     }
@@ -1207,10 +1210,10 @@ function generateInstructionPage(
 
     drawStudCountForContext(
         studMap,
-        availableStudHexList,
+        plateStudHexList,
         scalingFactor,
         ctx,
-        pictureWidth * 0.25,
+        pictureWidth * 0.3,
         pictureHeight * 0.2 - radius,
         pixelType
     );
@@ -1441,7 +1444,7 @@ function drawDepthPlatesCountForContext(usedDepthParts, scalingFactor, ctx, hori
         return Number(part1Numbers[0]) * Number(part1Numbers[1]) - Number(part2Numbers[0]) * Number(part2Numbers[1]);
     });
 
-    ctx.font = `${scalingFactor / 2}px Arial`;
+    ctx.font = `${scalingFactor / 3}px Arial`;
 
     const lineHeight = scalingFactor * 1.5;
 
@@ -1514,9 +1517,9 @@ function generateDepthInstructionTitlePage(
     );
 
     ctx.fillStyle = "#000000";
-    ctx.font = `${scalingFactor * 2}px Arial`;
+    ctx.font = `${scalingFactor}px Arial`;
     ctx.fillText("Lego Art Remix", pictureWidth * 0.75, pictureHeight * 0.28);
-    ctx.font = `${scalingFactor / 2}px Arial`;
+    ctx.font = `${scalingFactor / 4}px Arial`;
     ctx.fillText(`Depth Instructions`, pictureWidth * 0.75, pictureHeight * 0.34);
     ctx.fillText(
         `Resolution: ${targetResolution[0]} x ${targetResolution[1]}`,
@@ -1524,7 +1527,7 @@ function generateDepthInstructionTitlePage(
         pictureHeight * 0.37
     );
 
-    const legendHorizontalOffset = pictureWidth * 0.75;
+    const legendHorizontalOffset = pictureWidth * 1.5;
     const legendVerticalOffset = pictureHeight * 0.41;
     const numPlates = usedPlatesMatrices.length;
     const legendSquareSide = scalingFactor;
@@ -1543,7 +1546,7 @@ function generateDepthInstructionTitlePage(
 
     ctx.lineWidth = 5;
     ctx.strokeStyle = "#000000";
-    ctx.font = `${legendSquareSide / 2}px Arial`;
+    ctx.font = `${legendSquareSide / 3}px Arial`;
 
     for (let i = 0; i < numPlates; i++) {
         const horIndex = ((i * plateWidth) % targetResolution[0]) / plateWidth;

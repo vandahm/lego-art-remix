@@ -56,7 +56,6 @@ const interactionSelectors = [
     "clear-custom-studs-button",
     "infinite-piece-count-check",
     "color-ties-resolution-button",
-    "resolution-limit-increase-button",
     "high-quality-instructions-check",
     "input-depth-image-selector",
     "generate-depth-image",
@@ -155,8 +154,8 @@ let targetResolution = [
 ];
 const PIXEL_WIDTH_CM = 0.8;
 const INCHES_IN_CM = 0.393701;
-const SCALING_FACTOR = 40;
-const PLATE_WIDTH = 16;
+const SCALING_FACTOR = 80;
+const PLATE_WIDTH = 6;
 
 document.getElementById("width-text").title = `${(targetResolution[0] * PIXEL_WIDTH_CM).toFixed(1)} cm, ${(
     targetResolution[0] *
@@ -380,11 +379,6 @@ document.getElementById("clear-depth-overrides-button").addEventListener("click"
     runStep2();
 });
 
-document.getElementById("resolution-limit-increase-button").addEventListener("click", () => {
-    document.getElementById("height-slider").max = 256;
-    document.getElementById("width-slider").max = 256;
-    document.getElementById("resolution-limit-increase-button").hidden = true;
-});
 
 document.getElementById("color-tie-grouping-factor-slider").addEventListener("change", () => {
     document.getElementById("color-tie-grouping-factor-text").innerHTML = document.getElementById(
