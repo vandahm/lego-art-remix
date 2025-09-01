@@ -1736,21 +1736,31 @@ function onPaintBucketFill(row, col) {
         .map((shade) => parseInt(shade));
     
     // Get the target color (color to be replaced)
+    // Use the cached/displayed color which already has overrides applied
     let targetColorRGB;
-    if (overridePixelArray[pixelIndex] !== null && 
-        overridePixelArray[pixelIndex + 1] !== null && 
-        overridePixelArray[pixelIndex + 2] !== null) {
+    if (cachedStep3AlignedPixelArray) {
         targetColorRGB = [
-            overridePixelArray[pixelIndex],
-            overridePixelArray[pixelIndex + 1],
-            overridePixelArray[pixelIndex + 2]
+            cachedStep3AlignedPixelArray[pixelIndex],
+            cachedStep3AlignedPixelArray[pixelIndex + 1],
+            cachedStep3AlignedPixelArray[pixelIndex + 2]
         ];
     } else {
-        targetColorRGB = [
-            step3PixelArrayForEraser[pixelIndex],
-            step3PixelArrayForEraser[pixelIndex + 1],
-            step3PixelArrayForEraser[pixelIndex + 2]
-        ];
+        // Fallback to checking overrides manually if cache not available
+        if (overridePixelArray[pixelIndex] !== null && 
+            overridePixelArray[pixelIndex + 1] !== null && 
+            overridePixelArray[pixelIndex + 2] !== null) {
+            targetColorRGB = [
+                overridePixelArray[pixelIndex],
+                overridePixelArray[pixelIndex + 1],
+                overridePixelArray[pixelIndex + 2]
+            ];
+        } else {
+            targetColorRGB = [
+                step3PixelArrayForEraser[pixelIndex],
+                step3PixelArrayForEraser[pixelIndex + 1],
+                step3PixelArrayForEraser[pixelIndex + 2]
+            ];
+        }
     }
     
     // Don't fill if target and replacement colors are the same
@@ -1781,21 +1791,31 @@ function onPaintBucketFill(row, col) {
         const currentPixelIndex = 4 * (currentRow * targetResolution[0] + currentCol);
         
         // Get current pixel color
+        // Use the cached/displayed color which already has overrides applied
         let currentColorRGB;
-        if (overridePixelArray[currentPixelIndex] !== null && 
-            overridePixelArray[currentPixelIndex + 1] !== null && 
-            overridePixelArray[currentPixelIndex + 2] !== null) {
+        if (cachedStep3AlignedPixelArray) {
             currentColorRGB = [
-                overridePixelArray[currentPixelIndex],
-                overridePixelArray[currentPixelIndex + 1],
-                overridePixelArray[currentPixelIndex + 2]
+                cachedStep3AlignedPixelArray[currentPixelIndex],
+                cachedStep3AlignedPixelArray[currentPixelIndex + 1],
+                cachedStep3AlignedPixelArray[currentPixelIndex + 2]
             ];
         } else {
-            currentColorRGB = [
-                step3PixelArrayForEraser[currentPixelIndex],
-                step3PixelArrayForEraser[currentPixelIndex + 1],
-                step3PixelArrayForEraser[currentPixelIndex + 2]
-            ];
+            // Fallback to checking overrides manually if cache not available
+            if (overridePixelArray[currentPixelIndex] !== null && 
+                overridePixelArray[currentPixelIndex + 1] !== null && 
+                overridePixelArray[currentPixelIndex + 2] !== null) {
+                currentColorRGB = [
+                    overridePixelArray[currentPixelIndex],
+                    overridePixelArray[currentPixelIndex + 1],
+                    overridePixelArray[currentPixelIndex + 2]
+                ];
+            } else {
+                currentColorRGB = [
+                    step3PixelArrayForEraser[currentPixelIndex],
+                    step3PixelArrayForEraser[currentPixelIndex + 1],
+                    step3PixelArrayForEraser[currentPixelIndex + 2]
+                ];
+            }
         }
         
         // Check if this pixel matches the target color
