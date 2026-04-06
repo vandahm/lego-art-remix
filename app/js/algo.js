@@ -971,7 +971,7 @@ function getSubPixelArray(pixelArray, index, width, plateWidth) {
     return result;
 }
 
-function drawStudCountForContext(
+function oldDrawStudCountForContext(
     studMap,
     availableStudHexList,
     scalingFactor,
@@ -1015,6 +1015,65 @@ function drawStudCountForContext(
         verticalOffset + radius * 0.75,
         radius * 11,
         radius * 2.5 * (availableStudHexList.length + 0.5)
+    );
+    ctx.stroke();
+}
+
+function drawStudCountForContext(
+    studMap,
+    availableStudHexList,
+    scalingFactor,
+    ctx,
+    horizontalOffset,
+    verticalOffset,
+    pixelType
+) {
+    const radius = scalingFactor / 2;
+    ctx.font = `${scalingFactor / 2}px Arial`;
+
+    let lineOffsetNumber = 0;
+    availableStudHexList.forEach((pixelHex, i) => {
+        const number = i + 1;
+
+        if (studMap[pixelHex] !== undefined) {
+            lineOffsetNumber++;
+        }
+
+        if (studMap[pixelHex] == null) {
+            return;
+        }
+        ctx.beginPath();
+        const x = horizontalOffset;
+        const y = verticalOffset + radius * 2.5 * lineOffsetNumber;
+        drawPixel(
+            ctx,
+            x - radius,
+            y - radius,
+            radius,
+            pixelHex,
+            inverseHex(pixelHex),
+            PIXEL_TYPE_TO_FLATTENED[pixelType]
+        );
+        ctx.fillStyle = inverseHex(pixelHex);
+        ctx.fillText(number, x - (scalingFactor * (1 + Math.floor(number / 2) / 6)) / 8, y + scalingFactor / 8);
+        ctx.fillStyle = "#000000";
+        if (!("" + pixelType).match("^variable.*$")) {
+            ctx.fillText(`X ${studMap[pixelHex] || 0}`, x + radius * 1.5, y);
+        }
+        ctx.font = `${scalingFactor / 2.5}px Arial`;
+        ctx.fillText(HEX_TO_COLOR_NAME[pixelHex] || pixelHex, x + radius * 1.5, y + scalingFactor / 2.5);
+        ctx.font = `${scalingFactor / 2}px Arial`;
+    });
+
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#000000";
+    ctx.beginPath();
+    ctx.rect(
+        horizontalOffset - radius * 2,
+        verticalOffset + radius * 0.75,
+        radius * 11,
+        // radius * 2.5 * (availableStudHexList.length + 0.5)
+        radius * 2.5 * (lineOffsetNumber + 0.5)
     );
     ctx.stroke();
 }

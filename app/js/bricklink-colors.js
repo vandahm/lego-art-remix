@@ -1,3 +1,51 @@
+let PETERS_BRICKLINK_TRANS_COLORS = [
+    {
+        name: "Trans-Dark Blue",
+        hex: "#00296b",
+        id: 14
+    },
+    {
+        name: "Trans-Green",
+        hex: "#217625",
+        id: 20
+    },
+    {
+        name: "Trans-Light Blue",
+        hex: "#68bcc5",
+        id: 15
+    },
+    {
+        name: "Trans-Orange",
+        hex: "#e96f01",
+        id: 98
+    },
+    {
+        name: "Trans-Purple",
+        hex: "#5525b7",
+        id: 51,
+    },
+    {
+        name: "Trans-Red",
+        hex: "#9c0010",
+        id: 17
+    },
+    {
+        name: "Trans-Yellow",
+        hex: "#ebf72d",
+        id: 19
+    }
+]
+
+let PETERS_BRICKLINK_TRANS_HEX = [
+    "#00296b",
+    "#217625",
+    "#68bcc5",
+    "#e96F01",
+    "#5525B7",
+    "#9c0010",
+    "#ebf72d"
+];
+
 let ALL_BRICKLINK_SOLID_COLORS = [
     {
         name: "White",
@@ -448,7 +496,16 @@ let ALL_BRICKLINK_SOLID_COLORS = [
         hex: "#D9C594",
         id: 241,
     },
+
+    // New color circa 2024
+    {
+        name: "Reddish Orange",
+        hex: "#ff5500",
+        id: 167,
+    }
 ];
+
+ALL_BRICKLINK_SOLID_COLORS = ALL_BRICKLINK_SOLID_COLORS.concat(PETERS_BRICKLINK_TRANS_COLORS);
 
 const HEX_TO_COLOR_NAME = {};
 ALL_BRICKLINK_SOLID_COLORS.forEach((color) => {
@@ -488,6 +545,7 @@ const KNOWN_BRICKLINK_STUD_COLOR_NAMES = [
     "Orange",
     "Red",
     "Reddish Brown",
+    "Reddish Orange",
     "Sand Blue",
     "Sand Green",
     "Tan",
