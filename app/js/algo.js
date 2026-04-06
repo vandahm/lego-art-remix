@@ -1207,7 +1207,7 @@ function generateInstructionPage(
     ctx.lineWidth = 1;
 
     const studToNumber = {};
-    plateStudHexList.forEach((stud, i) => {
+    availableStudHexList.forEach((stud, i) => {
         studToNumber[stud] = i + 1;
     });
 
@@ -1269,7 +1269,7 @@ function generateInstructionPage(
 
     drawStudCountForContext(
         studMap,
-        plateStudHexList,
+        availableStudHexList,
         scalingFactor,
         ctx,
         pictureWidth * 0.3,
