@@ -1170,7 +1170,8 @@ function generateInstructionPage(
     canvas,
     plateNumber,
     pixelType,
-    variablePixelPieceDimensions
+    variablePixelPieceDimensions,
+    maxSidebarPieces
 ) {
     const ctx = canvas.getContext("2d");
 
@@ -1185,7 +1186,8 @@ function generateInstructionPage(
     // Filter to only colors used on this plate
     const plateStudHexList = availableStudHexList.filter(hex => (studMap[hex] || 0) > 0);
 
-    canvas.height = Math.max(pictureHeight * 1.5, pictureHeight * 0.4 + plateStudHexList.length * radius * 2.5);
+    const sidebarCount = maxSidebarPieces != null ? maxSidebarPieces : plateStudHexList.length;
+    canvas.height = Math.max(pictureHeight * 1.5, pictureHeight * 0.4 + sidebarCount * radius * 2.5);
     canvas.width = pictureWidth * 3;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);

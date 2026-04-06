@@ -2706,6 +2706,14 @@ async function generateInstructions() {
 
         const totalPlates = resultImage.length / (4 * PLATE_WIDTH * PLATE_WIDTH);
 
+        let maxSidebarPieces = 0;
+        for (var i = 0; i < totalPlates; i++) {
+            const subPixelArray = getSubPixelArray(resultImage, i, targetResolution[0], PLATE_WIDTH);
+            const studMap = getUsedPixelsStudMap(subPixelArray);
+            const count = filteredAvailableStudHexList.filter(hex => (studMap[hex] || 0) > 0).length;
+            if (count > maxSidebarPieces) maxSidebarPieces = count;
+        }
+
         document.getElementById("pdf-progress-bar").style.width = `${100 / (totalPlates + 1)}%`;
 
         document.getElementById("pdf-progress-bar").style.width = "0%";
@@ -2717,17 +2725,6 @@ async function generateInstructions() {
         let numParts = 1;
         for (var i = 0; i < totalPlates; i++) {
             await sleep(50);
-            if ((i + 1) % (isHighQuality ? 20 : 50) === 0) {
-                pdf.save(`Lego-Art-Remix-Instructions-Part-${numParts}.pdf`);
-                numParts++;
-                pdf = new jsPDF({
-                    orientation: titlePageCanvas.width < titlePageCanvas.height ? "p" : "l",
-                    unit: "mm",
-                    format: [titlePageCanvas.width, titlePageCanvas.height],
-                });
-            } else {
-                pdf.addPage();
-            }
 
             document.getElementById("pdf-progress-bar").style.width = `${((i + 2) * 100) / (totalPlates + 1)}%`;
 
@@ -2757,19 +2754,33 @@ async function generateInstructions() {
                 instructionPageCanvas,
                 i + 1,
                 selectedPixelPartNumber,
-                variablePixelPieceDimensionsForPage
+                variablePixelPieceDimensionsForPage,
+                maxSidebarPieces
             );
 
             setDPI(instructionPageCanvas, isHighQuality ? HIGH_DPI : LOW_DPI);
             const imgData = instructionPageCanvas.toDataURL(`image${i + 1}/jpeg`, i);
 
+            if ((i + 1) % (isHighQuality ? 20 : 50) === 0) {
+                pdf.save(`Lego-Art-Remix-Instructions-Part-${numParts}.pdf`);
+                numParts++;
+                pdf = new jsPDF({
+                    orientation: instructionPageCanvas.width < instructionPageCanvas.height ? "p" : "l",
+                    unit: "mm",
+                    format: [instructionPageCanvas.width, instructionPageCanvas.height],
+                });
+            } else {
+                pdf.addPage([instructionPageCanvas.width, instructionPageCanvas.height]);
+            }
+
+            const pagePdfWidth = pdf.internal.pageSize.getWidth();
             pdf.addImage(
                 imgData,
                 "PNG",
                 0,
                 0,
-                pdfWidth,
-                (pdfWidth * instructionPageCanvas.height) / instructionPageCanvas.width
+                pagePdfWidth,
+                (pagePdfWidth * instructionPageCanvas.height) / instructionPageCanvas.width
             );
         }
 
