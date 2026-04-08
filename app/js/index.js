@@ -355,7 +355,7 @@ document.getElementById("width-slider").addEventListener(
     "change",
     () => {
         document.getElementById("width-text").innerHTML = document.getElementById("width-slider").value;
-        targetResolution[0] = document.getElementById("width-slider").value;
+        targetResolution[0] = Number(document.getElementById("width-slider").value);
         handleResolutionChange();
     },
     false
@@ -365,7 +365,7 @@ document.getElementById("height-slider").addEventListener(
     "change",
     () => {
         document.getElementById("height-text").innerHTML = document.getElementById("height-slider").value;
-        targetResolution[1] = document.getElementById("height-slider").value;
+        targetResolution[1] = Number(document.getElementById("height-slider").value);
         handleResolutionChange();
     },
     false
