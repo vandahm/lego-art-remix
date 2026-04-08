@@ -927,7 +927,10 @@ function getColorSelectorDropdown(tooltipPosition, onColorSelected) {
     return container;
 }
 
-const paintbrushDropdown = getColorSelectorDropdown("top", () => {});
+const paintbrushDropdown = getColorSelectorDropdown("top", () => {
+    runCustomStudMap(true);
+    runStep3(true);
+});
 paintbrushDropdown.children[0].id = "paintbrush-color-dropdown";
 paintbrushDropdown.children[0].className = "btn paintbrush-controls-button";
 paintbrushDropdown.style = "height: 100%;";
@@ -1956,6 +1959,8 @@ Array.from(document.getElementById("paintbrush-tool-selection-dropdown-options")
         selectedPaintbrushTool = value;
         document.getElementById("paintbrush-color-dropdown").disabled = value !== "paintbrush-tool-dropdown-option" && value !== "paint-bucket-tool-dropdown-option";
         document.getElementById("paintbrush-tool-selection-dropdown").innerHTML = item.children[0].innerHTML;
+        runCustomStudMap(true);
+        runStep3(true);
     });
 });
 
@@ -2048,7 +2053,7 @@ function onMouseMoveOverStep3Canvas(event) {
             // paint bucket tool
             onPaintBucketFill(row, col);
         }
-    } else if (pixelIndex + 2 < step3CanvasPixelsForHover.length) {
+    } else if (step3CanvasPixelsForHover && pixelIndex + 2 < step3CanvasPixelsForHover.length) {
         // we're not painting - highlight the pixel instead
         const hoveredPixelRGB = [
             step3CanvasPixelsForHover[pixelIndex],
