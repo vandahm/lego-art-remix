@@ -1275,6 +1275,9 @@ function runStep2() {
             maxHeight: 4096,
             imageSmoothingEnabled: false,
         });
+        if (!croppedCanvas || croppedCanvas.width === 0 || croppedCanvas.height === 0) {
+            return;
+        }
         inputPixelArray = getPixelArrayFromCanvas(croppedCanvas);
     } else {
         // We're using adaptive pooling
@@ -1283,6 +1286,9 @@ function runStep2() {
             maxHeight: 4096,
             imageSmoothingEnabled: false,
         });
+        if (!croppedCanvas || croppedCanvas.width === 0 || croppedCanvas.height === 0) {
+            return;
+        }
         rawCroppedData = getPixelArrayFromCanvas(croppedCanvas);
         let subArrayPoolingFunction;
         if (selectedInterpolationAlgorithm === "maxPooling") {
