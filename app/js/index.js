@@ -873,9 +873,12 @@ function getColorSquare(hex) {
     return result;
 }
 
-function getColorSelectorDropdown(tooltipPosition) {
+function getColorSelectorDropdown(tooltipPosition, onColorSelected) {
     if (!tooltipPosition) {
         tooltipPosition = "left";
+    }
+    if (!onColorSelected) {
+        onColorSelected = runCustomStudMap;
     }
     const container = document.createElement("div");
     const id = "color-selector" + uuidv4();
@@ -910,7 +913,7 @@ function getColorSelectorDropdown(tooltipPosition) {
             container.setAttribute("title", color.name);
             $('[data-toggle="tooltip"]').tooltip("dispose");
             $('[data-toggle="tooltip"]').tooltip();
-            runCustomStudMap();
+            onColorSelected();
         });
         dropdown.appendChild(option);
     });
@@ -924,7 +927,7 @@ function getColorSelectorDropdown(tooltipPosition) {
     return container;
 }
 
-const paintbrushDropdown = getColorSelectorDropdown("top");
+const paintbrushDropdown = getColorSelectorDropdown("top", () => {});
 paintbrushDropdown.children[0].id = "paintbrush-color-dropdown";
 paintbrushDropdown.children[0].className = "btn paintbrush-controls-button";
 paintbrushDropdown.style = "height: 100%;";
