@@ -1,35 +1,6 @@
 const VERSION_NUMBER = "v2022.12.11";
 document.getElementById("version-number").innerHTML = VERSION_NUMBER;
 
-let perfLoggingDatabase;
-try {
-    perfLoggingDatabase = firebase.database();
-    perfLoggingDatabase
-        .ref("/input-image-count/total")
-        .once("value")
-        .then((snapshot) => {
-            const inputVal = snapshot.val();
-            if (inputVal != null) {
-                perfLoggingDatabase
-                    .ref("/trigger-random-example-input-count/total")
-                    .once("value")
-                    .then((snapshot) => {
-                        const exampleVal = snapshot.val();
-                        if (exampleVal != null) {
-                            document.getElementById("total-generated-count").innerHTML = `<br/>${
-                                Number(inputVal) + Number(exampleVal)
-                            } images created to date`;
-                        }
-                    });
-            }
-        });
-} catch (_e) {
-    // we don't care if this fails
-}
-
-function incrementTransaction(count) {
-    return (count || 0) + 1;
-}
 
 const LOW_DPI = 48;
 const HIGH_DPI = 96;
@@ -212,9 +183,6 @@ function enableDepth() {
     create3dPreview();
     depthEnabled = true;
 
-    perfLoggingDatabase.ref("enable-depth-count/total").transaction(incrementTransaction);
-    const loggingTimestamp = Math.floor((Date.now() - (Date.now() % 8.64e7)) / 1000); // 8.64e+7 = ms in day
-    perfLoggingDatabase.ref("enable-depth-count/per-day/" + loggingTimestamp).transaction(incrementTransaction);
 }
 document.getElementById("enable-depth-button").addEventListener("click", enableDepth);
 if (window.location.href.includes("enable3d")) {
@@ -2803,11 +2771,6 @@ async function generateInstructions() {
         document.getElementById("download-instructions-button").hidden = false;
         enableInteraction();
 
-        perfLoggingDatabase.ref("instructions-generated-count/total").transaction(incrementTransaction);
-        const loggingTimestamp = Math.floor((Date.now() - (Date.now() % 8.64e7)) / 1000); // 8.64e+7 = ms in day
-        perfLoggingDatabase
-            .ref("instructions-generated-count/per-day/" + loggingTimestamp)
-            .transaction(incrementTransaction);
     });
 }
 
@@ -2945,29 +2908,9 @@ async function generateDepthInstructions() {
         document.getElementById("download-depth-instructions-button").hidden = false;
         enableInteraction();
 
-        perfLoggingDatabase.ref("depth-instructions-generated-count/total").transaction(incrementTransaction);
-        const loggingTimestamp = Math.floor((Date.now() - (Date.now() % 8.64e7)) / 1000); // 8.64e+7 = ms in day
-        perfLoggingDatabase
-            .ref("depth-instructions-generated-count/per-day/" + loggingTimestamp)
-            .transaction(incrementTransaction);
     });
 }
 
-document.getElementById("hogwarts-crest-example-instructions-link").addEventListener("click", () => {
-    perfLoggingDatabase.ref("examples-click-count/hogwarts-crest-instructions/total").transaction(incrementTransaction);
-    const loggingTimestamp = Math.floor((Date.now() - (Date.now() % 8.64e7)) / 1000); // 8.64e+7 = ms in day
-    perfLoggingDatabase
-        .ref("examples-click-count/hogwarts-crest-instructions/per-day/" + loggingTimestamp)
-        .transaction(incrementTransaction);
-});
-
-document.getElementById("31201-lego-website-link").addEventListener("click", () => {
-    perfLoggingDatabase.ref("examples-click-count/31201-lego-website-link/total").transaction(incrementTransaction);
-    const loggingTimestamp = Math.floor((Date.now() - (Date.now() % 8.64e7)) / 1000); // 8.64e+7 = ms in day
-    perfLoggingDatabase
-        .ref("examples-click-count/31201-lego-website-link/per-day/" + loggingTimestamp)
-        .transaction(incrementTransaction);
-});
 
 document.getElementById("download-instructions-button").addEventListener("click", async () => {
     await generateInstructions();
@@ -3084,7 +3027,7 @@ document.getElementById("generate-depth-image").addEventListener("click", trigge
 
 const SERIALIZE_EDGE_LENGTH = 512;
 
-function handleInputImage(e, dontClearDepth, dontLog) {
+function handleInputImage(e, dontClearDepth) {
     const reader = new FileReader();
     reader.onload = function (event) {
         inputImage = new Image();
@@ -3144,11 +3087,6 @@ function handleInputImage(e, dontClearDepth, dontLog) {
             runStep1();
         }, 50); // TODO: find better way to check that input is finished
 
-        if (!dontLog) {
-            perfLoggingDatabase.ref("input-image-count/total").transaction(incrementTransaction);
-            const loggingTimestamp = Math.floor((Date.now() - (Date.now() % 8.64e7)) / 1000); // 8.64e+7 = ms in day
-            perfLoggingDatabase.ref("input-image-count/per-day/" + loggingTimestamp).transaction(incrementTransaction);
-        }
     };
     reader.readAsDataURL(e.target.files[0]);
 }
@@ -3237,11 +3175,6 @@ document.getElementById("run-example-input").addEventListener("click", () => {
             };
             depthReader.readAsDataURL(depthImage);
         });
-    perfLoggingDatabase.ref("trigger-random-example-input-count/total").transaction(incrementTransaction);
-    const loggingTimestamp = Math.floor((Date.now() - (Date.now() % 8.64e7)) / 1000); // 8.64e+7 = ms in day
-    perfLoggingDatabase
-        .ref("trigger-random-example-input-count/per-day/" + loggingTimestamp)
-        .transaction(incrementTransaction);
 });
 
 const imageURLMatch =
@@ -3287,11 +3220,6 @@ document.getElementById("input-depth-image-selector").addEventListener("click", 
     depthImageSelectorHidden.click();
 });
 
-window.addEventListener("appinstalled", () => {
-    perfLoggingDatabase.ref("pwa-install-count/total").transaction(incrementTransaction);
-    const loggingTimestamp = Math.floor((Date.now() - (Date.now() % 8.64e7)) / 1000); // 8.64e+7 = ms in day
-    perfLoggingDatabase.ref("pwa-install-count/per-day/" + loggingTimestamp).transaction(incrementTransaction);
-});
 
 document.getElementById("toggle-tech-talk-button").addEventListener("click", () => {
     // small hack so the iframe only renders when open
