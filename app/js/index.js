@@ -1949,6 +1949,10 @@ function onMouseMoveOverStep3Canvas(event) {
     const row = Math.round((rawRow * targetResolution[1]) / step3CanvasUpscaled.offsetHeight);
     const col = Math.round((rawCol * targetResolution[0]) / step3CanvasUpscaled.offsetWidth);
 
+    if (row < 0 || row >= targetResolution[1] || col < 0 || col >= targetResolution[0]) {
+        return;
+    }
+
     const pixelIndex = 4 * (row * targetResolution[0] + col);
     const i = pixelIndex / 4;
     const ctx = step3CanvasUpscaledContext;
