@@ -2662,11 +2662,16 @@ async function generateInstructions() {
         const titlePageCanvas = document.createElement("canvas");
         instructionsCanvasContainer.appendChild(titlePageCanvas);
         const studMap = getUsedPixelsStudMap(resultImage);
-        const filteredAvailableStudHexList = selectedSortedStuds
-            .filter((pixelHex) => (studMap[pixelHex] || 0) > 0)
-            .filter(function (item, pos, self) {
-                return self.indexOf(item) === pos; // remove duplicates
-            });
+        const usedHexesFromImage = Object.keys(studMap).filter((hex) => studMap[hex] > 0);
+        const seenHexes = new Set();
+        const filteredAvailableStudHexList = [
+            ...selectedSortedStuds.filter((pixelHex) => (studMap[pixelHex] || 0) > 0),
+            ...usedHexesFromImage,
+        ].filter((hex) => {
+            if (seenHexes.has(hex)) return false;
+            seenHexes.add(hex);
+            return true;
+        });
         generateInstructionTitlePage(
             resultImage,
             targetResolution[0],
